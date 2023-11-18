@@ -42,12 +42,6 @@ wget -O /var/lib/marzban/assets/zapret.dat https://github.com/Iambabyninja/ru_go
             },
             {
                 "type": "field",
-                "port": 53,
-                "network": "tcp,udp",
-                "outboundTag": "DNS-Internal"
-            },
-            {
-                "type": "field",
                 "outboundTag": "blackhole",
                 "protocol": [
                     "bittorrent"
