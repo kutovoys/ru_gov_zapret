@@ -33,25 +33,9 @@ wget -O /var/lib/marzban/assets/zapret.dat https://github.com/Iambabyninja/ru_go
         "domainStrategy": "IPIfNonMatch",
         "rules": [
             {
-                "type": "field",
-                "outboundTag": "blackhole",
-                "ip": [
-                    "geoip:private",
-                    "geoip:ru"
-                ]
-            },
-            {
-                "type": "field",
-                "outboundTag": "blackhole",
-                "protocol": [
-                    "bittorrent"
-                ]
-            },
-            {
-                "outboundTag": "blackhole",
+                "outboundTag": "BLOCK",
                 "domain": [
-                    "regexp:.*\\.ru$",
-                    "ext:zapret.dat:zapret"
+                    "ext:zapret.dat:zapret",
                     "ext:zapret.dat:zapret-zapad"
                 ],
                 "type": "field"
