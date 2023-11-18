@@ -10,8 +10,8 @@ wget -O https://github.com/Iambabyninja/ru_gov_zapret/releases/latest/download/z
 ```
 
 Имеет две ветки:
-1) zapret.dat:zapret - Все что заблокировано РКН
-1) zapret.dat:zapret-zapad - Рессурсы не обслуивающие Русские IP
+1) zapret.dat:zapret - Все что заблокировано РКНы
+1) zapret.dat:zapret-zapad - Рессурсы не обслуживающие Русские IP
 
 ## Установка для сервера
 
