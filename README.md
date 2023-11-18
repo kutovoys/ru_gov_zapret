@@ -25,7 +25,7 @@ wget -O /var/lib/marzban/assets/zapret.dat https://github.com/Iambabyninja/ru_go
 ```
 Устанавливаем значение в .env файле
 
-`XRAY_ASSETS_PATH = "/var/lib/marzban/assets/"`
+```XRAY_ASSETS_PATH = "/var/lib/marzban/assets/"```
 
 Редактируем xray_config.json
 ```json
