@@ -1,0 +1,56 @@
+name: zapret .dat
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "0 0 * * *"
+  push:
+    branches:
+      - master
+    paths-ignore:
+      - "**/README.md"
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout codebase
+        uses: actions/checkout@v3
+        with:
+          path: code
+
+      - name: Setup Go
+        uses: actions/setup-go@v4
+        with:
+          go-version-file: code/go.mod
+
+      - name: Set variables
+        run: |
+          echo "RELEASE_NAME=$(date +%Y%m%d%H%M%S)" >> $GITHUB_ENV
+          echo "TAG_NAME=$(date +%Y%m%d%H%M%S)" >> $GITHUB_ENV
+        shell: bash
+
+      - name: Download Antifilter lists
+        run: |          
+          mkdir -p input
+          curl -L "https://antifilter.download/list/domains.lst" -o ./input/zapret
+          curl -L "https://community.antifilter.download/list/domains.lst" -o ./input/zapret-zapad
+
+      - name: Build .dat file
+        run: |
+          mkdir -p publish
+          cd code || exit 1
+          go run ./ --datapath=../input --outputdir=../publish --exportlists=zapret,zapret-zapad --outputname=zapret.dat
+
+      - name: Generate hash
+        run: |
+          sha256sum ./publish/zapret.dat > ./publish/zapret.dat.sha256sum      
+
+      - name: Release and upload assets
+        run: |
+          cd code || exit 1
+          gh release create ${{ env.TAG_NAME }} -t ${{ env.RELEASE_NAME }} \
+            ../publish/*.dat \
+            ../publish/*.dat.sha256sum
+        env:
+          GH_TOKEN: ${{ github.token }}
