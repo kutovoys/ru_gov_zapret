@@ -43,3 +43,5 @@ wget -O /var/lib/marzban/assets/zapret.dat https://github.com/Iambabyninja/ru_go
         ]
     }
 ```
+
+{{add}}
