@@ -1,56 +1,83 @@
-name: Get IP2Location-Lite database
-
+name: Build geoip.dat
 on:
   workflow_dispatch:
   schedule:
-    - cron: "0 0 2 * *"
-
-env:
-  RELEASE_NAME: $(date +%Y%m%d%H%M)
-
+    - cron: "0 0 * * 4"
+  push:
+    branches:
+      - master
+    paths-ignore:
+      - "README.md"
+      - ".gitignore"
+      - "LICENSE"
+      - "**/dependabot.yml"
 jobs:
   build:
+    name: Build
     runs-on: ubuntu-latest
-    
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout codebase
+        uses: actions/checkout@v4
 
-      - name: Install dependencies
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+
+      - name: Set variables
         run: |
-          sudo apt-get update
-          sudo apt-get install csvkit
+          echo "TAG_NAME=$(date +%Y%m%d%H%M)" >> $GITHUB_ENV
+          echo "RELEASE_NAME=$(date +%Y%m%d%H%M)" >> $GITHUB_ENV
+        shell: bash
 
-      - name: Get IP2Location-Lite database
+      - name: Get GeoLite2
         env:
-          DOWNLOAD_TOKEN: ${{ secrets.IP2LOCATION_DOWNLOAD_TOKEN }}
+          LICENSE_KEY: ${{ secrets.MAXMIND_LICEHSE }}
         run: |
-          curl -sSL "https://www.ip2location.com/download/?token=${DOWNLOAD_TOKEN}&file=DB1LITECSV" -o IP2LOCATION-LITE-DB1.CSV.ZIP
-          unzip IP2LOCATION-LITE-DB1.CSV.ZIP -d IP2LOCATION-LITE-DB1
-      
-      - name: install ip2location-csv-converter script
-        run: pip install ip2location-python-csv-converter
-    
-      - name: Convert database from numeric to cidr
-        run: |
-          ip2location-csv-converter -cidr -replace IP2LOCATION-LITE-DB1/IP2LOCATION-LITE-DB1.CSV IP2LOCATION-LITE-DB1.CIDR.CSV
-    
-      - name: Extract Countries IPs
-        run: |
-          mkdir -p ip2location
-          cat IP2LOCATION-LITE-DB1.CIDR.CSV | awk -F"," '{print $2}' | sort -u | sed -e '1d' -e 's/\"//g' > countries.txt
-          while read l
-          do
-            csvgrep -c 2 -m "$l" IP2LOCATION-LITE-DB1.CIDR.CSV | csvcut -c 1 | sed '1d' > "ip2location/$l.txt"
-          done < countries.txt
+          curl -L "https://download.maxmind.com/app/geoip_download?edition_id=GeoLite2-Country-CSV&license_key=${LICENSE_KEY}&suffix=zip" -o GeoLite2-Country-CSV.zip
+          unzip GeoLite2-Country-CSV.zip
+          rm -f GeoLite2-Country-CSV.zip
+          mv GeoLite2* geolite2
 
-      - name: Push assets to ip2location branch
+      - name: Build geoip.dat
         run: |
-          cd ip2location || exit 1
+          go run ./
+
+      - name: Generate sha256 checksum for dat files
+        run: |
+          cd ./output/dat || exit 1
+          for name in $(ls *.dat); do
+            sha256sum ${name} > ./${name}.sha256sum
+          done
+
+      - name: Move files to publish directory
+        run: |
+          mkdir -p publish
+          mv ./output/dat/*.dat ./output/dat/*.sha256sum ./publish
+          cp -fpPR ./output/text ./publish
+
+      - name: Git push assets to "release" branch
+        run: |
+          cd publish || exit 1
           git init
           git config --local user.name "github-actions[bot]"
           git config --local user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git checkout -b ip2location
-          git add .
+          git checkout -b release
+          git add -A
           git commit -m "${{ env.RELEASE_NAME }}"
-          git remote add origin "https://${{ github.actor }}:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}"
-          git push -f origin ip2location
+          git remote add geoip "https://${{ github.actor }}:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}"
+          git push -f geoip release
+
+      - name: Release and upload assets
+        run: |
+          gh release create ${{ env.TAG_NAME }} -t ${{ env.RELEASE_NAME }} \
+            ./publish/geoip.dat \
+            ./publish/geoip.dat.sha256sum \
+            ./publish/geoip-only-cn-private.dat \
+            ./publish/geoip-only-cn-private.dat.sha256sum \
+            ./publish/cn.dat \
+            ./publish/cn.dat.sha256sum \
+            ./publish/private.dat \
+            ./publish/private.dat.sha256sum
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
