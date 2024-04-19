@@ -10,8 +10,8 @@ github.com/pmezard/go-difflib v1.0.0/go.mod h1:iKH77koFhYxTK1pcRnkKkqfTogsbg7gZN
 github.com/stretchr/objx v0.1.0/go.mod h1:HFkY916IF+rwdDfMAkV7OtwuqBVzrE8GR6GFx+wExME=
 github.com/stretchr/testify v1.7.0/go.mod h1:6Fq8oRcR53rry900zMqJjRRixrwX3KX962/h/Wwjteg=
 github.com/stretchr/testify v1.8.4 h1:CcVxjf3Q8PM0mHUKJCdn+eZZtm5yQwehR5yeSVQQcUk=
-github.com/v2fly/v2ray-core/v5 v5.15.1 h1:n5Xvv3RkDcBYtHDpS6rkrOAS2WURfhZWSfvkxsgTK9M=
-github.com/v2fly/v2ray-core/v5 v5.15.1/go.mod h1:IMP4oFah0SjutOQ3MTWmTz2LZeIielqE/sBhdAnhfd0=
+github.com/v2fly/v2ray-core/v5 v5.15.3 h1:yqBJcPKMJmjB1AjQT89gTog64GSNupvmZwn2cvIi87Q=
+github.com/v2fly/v2ray-core/v5 v5.15.3/go.mod h1:n2GHApi7EzlMf7703qsy2jEH/yTJQ2fBRnWQ/nblO2U=
 golang.org/x/sys v0.0.0-20211025201205-69cdffdb9359/go.mod h1:oPkhp1MJrh7nUepCBck5+mAzfO9JrbApNNgaTdGDITg=
 golang.org/x/sys v0.18.0 h1:DBdB3niSjOA/O0blCZBqDefyWNYveAYMNF1Wum0DYQ4=
 golang.org/x/sys v0.18.0/go.mod h1:/VUhepiaJMQUp4+oa/7Zr1D23ma6VTLIYjOOTFZPUcA=
