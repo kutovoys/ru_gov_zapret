@@ -30,8 +30,20 @@ jobs:
           echo "TAG_NAME=$(date +%Y%m%d%H%M%S)" >> $GITHUB_ENV
         shell: bash
 
+      - name: Get random cat
+        run: |
+          CAT_URL=$(curl -s 'https://api.thecatapi.com/v1/images/search' | jq -r '.[0].url')
+          echo "CAT_URL=$CAT_URL" >> $GITHUB_ENV
+          echo "RELEASE_BODY=Daily update of zapret.dat
+
+          Today's release comes with a special cat! 🐱
+          <img src=\"$CAT_URL\" width=\"400\">
+
+          " >> $GITHUB_ENV
+        shell: bash
+
       - name: Download Antifilter lists
-        run: |          
+        run: |
           mkdir -p input
           curl -L "https://antifilter.download/list/domains.lst" -o ./input/zapret
           curl -L "https://community.antifilter.download/list/domains.lst" -o ./input/zapret-zapad
@@ -44,12 +56,14 @@ jobs:
 
       - name: Generate hash
         run: |
-          sha256sum ./publish/zapret.dat > ./publish/zapret.dat.sha256sum      
+          sha256sum ./publish/zapret.dat > ./publish/zapret.dat.sha256sum
 
       - name: Release and upload assets
         run: |
           cd code || exit 1
-          gh release create ${{ env.TAG_NAME }} -t ${{ env.RELEASE_NAME }} \
+          gh release create ${{ env.TAG_NAME }} \
+            -t ${{ env.RELEASE_NAME }} \
+            -n "${{ env.RELEASE_BODY }}" \
             ../publish/*.dat \
             ../publish/*.dat.sha256sum
         env:
