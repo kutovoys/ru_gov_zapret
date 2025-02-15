@@ -34,12 +34,13 @@ jobs:
         run: |
           CAT_URL=$(curl -s 'https://api.thecatapi.com/v1/images/search' | jq -r '.[0].url')
           echo "CAT_URL=$CAT_URL" >> $GITHUB_ENV
-          echo "RELEASE_BODY=Daily update of zapret.dat
-
-          Today's release comes with a special cat! 🐱
-          <img src=\"$CAT_URL\" width=\"400\">
-
-          " >> $GITHUB_ENV
+          echo 'RELEASE_BODY<<EOF' >> $GITHUB_ENV
+          echo "Daily update of zapret.dat" >> $GITHUB_ENV
+          echo "" >> $GITHUB_ENV
+          echo "Today's release comes with a special cat! 🐱" >> $GITHUB_ENV
+          echo "<img src=\"$CAT_URL\" width=\"400\">" >> $GITHUB_ENV
+          echo "" >> $GITHUB_ENV
+          echo "EOF" >> $GITHUB_ENV
         shell: bash
 
       - name: Download Antifilter lists
