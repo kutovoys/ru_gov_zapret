@@ -199,7 +199,9 @@ func Load(path string) (*List, error) {
 		}
 		entry, err := parseEntry(line)
 		if err != nil {
-			return nil, err
+			// Upstream lists occasionally contain malformed lines; skip them instead of failing the whole build
+			fmt.Printf("Skipping invalid entry in %s: %q (%v)\n", filepath.Base(path), line, err)
+			continue
 		}
 		list.Entry = append(list.Entry, entry)
 	}
